@@ -96,3 +96,51 @@ class Database:
     def get_applications(self):
         self.cursor.execute('SELECT * FROM applications')
         return self.cursor.fetchall()
+
+    def delete_car(self, car_id):
+        self.cursor.execute("DELETE FROM cars WHERE id=?", (car_id,))
+        self.conn.commit()
+
+    def delete_client(self, client_id):
+        self.cursor.execute("DELETE FROM clients WHERE id=?", (client_id,))
+        self.conn.commit()
+
+    def delete_application(self, application_id):
+        self.cursor.execute("DELETE FROM applications WHERE id=?", (application_id,))
+        self.conn.commit()
+
+    def edit_car(self, car_id, brand, color, year, engine_volume, horsepower, transmission_type):
+        self.cursor.execute('''
+            UPDATE cars
+            SET brand=?, color=?, year=?, engine_volume=?, horsepower=?, transmission_type=?
+            WHERE id=?
+        ''', (brand, color, year, engine_volume, horsepower, transmission_type, car_id))
+        self.conn.commit()
+
+    def edit_client(self, client_id, full_name, birth_year, gender, registration_date):
+        self.cursor.execute('''
+            UPDATE clients
+            SET full_name=?, birth_year=?, gender=?, registration_date=?
+            WHERE id=?
+        ''', (full_name, birth_year, gender, registration_date, client_id))
+        self.conn.commit()
+
+    def edit_application(self, application_id, car_id, client_id, viewing_date):
+        self.cursor.execute('''
+            UPDATE applications
+            SET car_id=?, client_id=?, viewing_date=?
+            WHERE id=?
+        ''', (car_id, client_id, viewing_date, application_id))
+        self.conn.commit()
+
+    def get_car(self, car_id):
+        self.cursor.execute("SELECT * FROM cars WHERE id=?", (car_id,))
+        return self.cursor.fetchone()
+
+    def get_client(self, client_id):
+        self.cursor.execute("SELECT * FROM clients WHERE id=?", (client_id,))
+        return self.cursor.fetchone()
+
+    def get_application(self, application_id):
+        self.cursor.execute("SELECT * FROM applications WHERE id=?", (application_id,))
+        return self.cursor.fetchone()

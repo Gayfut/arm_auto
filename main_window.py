@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 
 
 class MainWindow:
@@ -51,6 +51,12 @@ class MainWindow:
         btn_add_car = ttk.Button(self.tab_cars, text="Добавить", command=self.add_car_window)
         btn_add_car.pack()
 
+        btn_delete_car = ttk.Button(self.tab_cars, text="Удалить", command=self.delete_car)
+        btn_delete_car.pack()
+
+        btn_edit_car = ttk.Button(self.tab_cars, text="Редактировать", command=self.edit_car)
+        btn_edit_car.pack()
+
     def create_clients_tab(self):
         self.tree_clients = ttk.Treeview(self.tab_clients, columns=("ID", "Full Name", "Birth Year", "Gender", "Registration Date"), show="headings")
         self.tree_clients.heading("ID", text="id")
@@ -64,6 +70,12 @@ class MainWindow:
         btn_add_client = ttk.Button(self.tab_clients, text="Добавить", command=self.add_client_window)
         btn_add_client.pack()
 
+        btn_delete_client = ttk.Button(self.tab_clients, text="Удалить", command=self.delete_client)
+        btn_delete_client.pack()
+
+        btn_edit_client = ttk.Button(self.tab_clients, text="Редактировать", command=self.edit_client)
+        btn_edit_client.pack()
+
     def create_applications_tab(self):
         self.tree_applications = ttk.Treeview(self.tab_applications, columns=("ID", "Car", "Client", "Viewing Date"), show="headings")
         self.tree_applications.heading("ID", text="id")
@@ -75,6 +87,12 @@ class MainWindow:
 
         btn_add_application = ttk.Button(self.tab_applications, text="Добавить", command=self.add_application_window)
         btn_add_application.pack()
+
+        btn_delete_application = ttk.Button(self.tab_applications, text="Удалить", command=self.delete_application)
+        btn_delete_application.pack()
+
+        btn_edit_application = ttk.Button(self.tab_applications, text="Редактировать", command=self.edit_application)
+        btn_edit_application.pack()
 
     def add_car_window(self):
         add_car_window = tk.Toplevel(self.root)
@@ -126,6 +144,85 @@ class MainWindow:
         # Обновляем отображение таблицы с автомобилями
         self.refresh_cars_table()
 
+    def delete_car(self):
+        selected_item = self.tree_cars.selection()
+
+        if not selected_item:
+            messagebox.showwarning("Предупреждение", "Выберите автомобиль для удаления.")
+            return
+
+        car_id = self.tree_cars.item(selected_item, "values")[0]
+        self.database.delete_car(car_id)
+        self.refresh_cars_table()
+
+    def edit_car(self):
+        selected_item = self.tree_cars.selection()
+
+        if not selected_item:
+            messagebox.showwarning("Предупреждение", "Выберите автомобиль для редактирования.")
+            return
+
+        car_id = self.tree_cars.item(selected_item, "values")[0]
+        car_data = self.database.get_car(car_id)
+
+        edit_car_window = tk.Toplevel(self.root)
+        edit_car_window.title("Редактировать автомобиль")
+
+        label_brand = ttk.Label(edit_car_window, text="Марка:")
+        label_brand.pack()
+
+        brand_entry = ttk.Entry(edit_car_window)
+        brand_entry.insert(0, car_data[1])
+        brand_entry.pack()
+
+        label_color = ttk.Label(edit_car_window, text="Цвет:")
+        label_color.pack()
+
+        color_entry = ttk.Entry(edit_car_window)
+        color_entry.insert(1, car_data[2])
+        color_entry.pack()
+
+        label_year = ttk.Label(edit_car_window, text="Год:")
+        label_year.pack()
+
+        year_entry = ttk.Entry(edit_car_window)
+        year_entry.insert(2, car_data[3])
+        year_entry.pack()
+
+        label_engine_volume = ttk.Label(edit_car_window, text="Объем двигателя:")
+        label_engine_volume.pack()
+
+        engine_volume_entry = ttk.Entry(edit_car_window)
+        engine_volume_entry.insert(3, car_data[4])
+        engine_volume_entry.pack()
+
+        label_horsepower = ttk.Label(edit_car_window, text="Лошадиные силы:")
+        label_horsepower.pack()
+
+        horsepower_entry = ttk.Entry(edit_car_window)
+        horsepower_entry.insert(4, car_data[5])
+        horsepower_entry.pack()
+
+        label_transmission_type = ttk.Label(edit_car_window, text="Тип коробки:")
+        label_transmission_type.pack()
+
+        transmission_type_entry = ttk.Entry(edit_car_window)
+        transmission_type_entry.insert(5, car_data[6])
+        transmission_type_entry.pack()
+
+        btn_save = ttk.Button(edit_car_window, text="Сохранить",
+                              command=lambda: self.save_edited_car(edit_car_window, car_id, brand_entry.get(),
+                                                                   color_entry.get(), year_entry.get(),
+                                                                   engine_volume_entry.get(), horsepower_entry.get(),
+                                                                   transmission_type_entry.get()))
+        btn_save.pack()
+
+    def save_edited_car(self, edit_car_window, car_id, brand, color, year, engine_volume, horsepower,
+                        transmission_type):
+        self.database.edit_car(car_id, brand, color, year, engine_volume, horsepower, transmission_type)
+        edit_car_window.destroy()
+        self.refresh_cars_table()
+
     def refresh_cars_table(self):
         # Очищаем таблицу перед обновлением
         for row in self.tree_cars.get_children():
@@ -174,6 +271,69 @@ class MainWindow:
         # Обновляем отображение таблицы с клиентами
         self.refresh_clients_table()
 
+    def delete_client(self):
+        selected_item = self.tree_clients.selection()
+
+        if not selected_item:
+            messagebox.showwarning("Предупреждение", "Выберите клиента для удаления.")
+            return
+
+        client_id = self.tree_clients.item(selected_item, "values")[0]
+        self.database.delete_client(client_id)
+        self.refresh_clients_table()
+
+    def edit_client(self):
+        selected_item = self.tree_clients.selection()
+
+        if not selected_item:
+            messagebox.showwarning("Предупреждение", "Выберите клиента для редактирования.")
+            return
+
+        client_id = self.tree_clients.item(selected_item, "values")[0]
+        client_data = self.database.get_client(client_id)
+
+        edit_client_window = tk.Toplevel(self.root)
+        edit_client_window.title("Редактировать клиента")
+
+        label_full_name = ttk.Label(edit_client_window, text="ФИО:")
+        label_full_name.pack()
+
+        full_name_entry = ttk.Entry(edit_client_window)
+        full_name_entry.insert(0, client_data[1])
+        full_name_entry.pack()
+
+        label_birth_year = ttk.Label(edit_client_window, text="Год рождения:")
+        label_birth_year.pack()
+
+        birth_year_entry = ttk.Entry(edit_client_window)
+        birth_year_entry.insert(1, client_data[2])
+        birth_year_entry.pack()
+
+        label_gender = ttk.Label(edit_client_window, text="Пол:")
+        label_gender.pack()
+
+        gender_entry = ttk.Entry(edit_client_window)
+        gender_entry.insert(2, client_data[3])
+        gender_entry.pack()
+
+        label_registration_date = ttk.Label(edit_client_window, text="Дата регистрации:")
+        label_registration_date.pack()
+
+        registration_date_entry = ttk.Entry(edit_client_window)
+        registration_date_entry.insert(3, client_data[4])
+        registration_date_entry.pack()
+
+        btn_save = ttk.Button(edit_client_window, text="Сохранить",
+                              command=lambda: self.save_edited_client(edit_client_window, client_id, full_name_entry.get(),
+                                                                      birth_year_entry.get(), gender_entry.get(),
+                                                                      registration_date_entry.get()))
+        btn_save.pack()
+
+    def save_edited_client(self, edit_client_window, client_id, full_name, birth_year, gender, registration_date):
+        self.database.edit_client(client_id, full_name, birth_year, gender, registration_date)
+        edit_client_window.destroy()
+        self.refresh_clients_table()
+
     def refresh_clients_table(self):
         # Очищаем таблицу перед обновлением
         for row in self.tree_clients.get_children():
@@ -214,6 +374,61 @@ class MainWindow:
         self.database.add_application(car_id, client_id, viewing_date)
         add_application_window.destroy()
         # Обновляем отображение таблицы с заявками на просмотр
+        self.refresh_applications_table()
+
+    def delete_application(self):
+        selected_item = self.tree_applications.selection()
+
+        if not selected_item:
+            messagebox.showwarning("Предупреждение", "Выберите заявку на просмотр для удаления.")
+            return
+
+        application_id = self.tree_applications.item(selected_item, "values")[0]
+        self.database.delete_application(application_id)
+        self.refresh_applications_table()
+
+    def edit_application(self):
+        selected_item = self.tree_applications.selection()
+
+        if not selected_item:
+            messagebox.showwarning("Предупреждение", "Выберите заявку для редактирования.")
+            return
+
+        application_id = self.tree_applications.item(selected_item, "values")[0]
+        application_data = self.database.get_application(application_id)
+
+        edit_application_window = tk.Toplevel(self.root)
+        edit_application_window.title("Редактировать заявку")
+
+        label_car_id = ttk.Label(edit_application_window, text="ID Автомобиля:")
+        label_car_id.pack()
+
+        car_id_entry = ttk.Entry(edit_application_window)
+        car_id_entry.insert(0, application_data[1])
+        car_id_entry.pack()
+
+        label_client_id = ttk.Label(edit_application_window, text="ID Клиента:")
+        label_client_id.pack()
+
+        client_id_entry = ttk.Entry(edit_application_window)
+        client_id_entry.insert(1, application_data[2])
+        client_id_entry.pack()
+
+        label_viewing_date = ttk.Label(edit_application_window, text="Дата просмотра:")
+        label_viewing_date.pack()
+
+        viewing_date_entry = ttk.Entry(edit_application_window)
+        viewing_date_entry.insert(2, application_data[3])
+        viewing_date_entry.pack()
+
+        btn_save = ttk.Button(edit_application_window, text="Сохранить",
+                              command=lambda: self.save_edited_application(edit_application_window, application_id, car_id_entry.get(),
+                                                                           client_id_entry.get(), viewing_date_entry.get()))
+        btn_save.pack()
+
+    def save_edited_application(self, edit_application_window, application_id, car_id, client_id, viewing_date):
+        self.database.edit_application(application_id, car_id, client_id, viewing_date)
+        edit_application_window.destroy()
         self.refresh_applications_table()
 
     def refresh_applications_table(self):
