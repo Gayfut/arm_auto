@@ -144,3 +144,18 @@ class Database:
     def get_application(self, application_id):
         self.cursor.execute("SELECT * FROM applications WHERE id=?", (application_id,))
         return self.cursor.fetchone()
+
+    def get_username_by_id(self, user_id):
+        self.cursor.execute("SELECT username FROM users WHERE id=?", (user_id,))
+        result = self.cursor.fetchone()
+        return result[0] if result else None
+
+    def get_car_name_by_id(self, car_id):
+        self.cursor.execute("SELECT brand FROM cars WHERE id=?", (car_id,))
+        result = self.cursor.fetchone()
+        return result[0] if result else None
+
+    def get_client_name_by_id(self, client_id):
+        self.cursor.execute("SELECT full_name FROM clients WHERE id=?", (client_id,))
+        result = self.cursor.fetchone()
+        return result[0] if result else None

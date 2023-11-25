@@ -6,6 +6,7 @@ class LoginWindow:
     def __init__(self, root, database, on_successful_login):
         self.root = root
         self.root.title("Логин")
+
         self.database = database
         self.on_successful_login = on_successful_login
 
@@ -42,6 +43,6 @@ class LoginWindow:
 
         if user:
             messagebox.showinfo("Успешно", "Вход выполнен успешно!")
-            self.on_successful_login()
+            self.on_successful_login(user[0])
         else:
             messagebox.showerror("Ошибка", "Неправильный логин или пароль")

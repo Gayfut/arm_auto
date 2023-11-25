@@ -1,15 +1,26 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, BOTH
 
 
 class MainWindow:
-    def __init__(self, root, database):
+    def __init__(self, root, database, current_user):
         self.root = root
         self.root.title("Главная страница")
+        self.root.protocol("WM_DELETE_WINDOW", self.close_event)
+
         self.database = database
+        self.current_user = current_user
+
+        self.cars = []
+        self.clients = []
 
         # Определение стилей
         self.root.configure(bg='white')
+
+        # Текущий пользователь
+        self.label_current_user = ttk.Label(self.root, text=f"Пользователь: {self.current_user}",
+                                            background='white', font=('Arial', 10))
+        self.label_current_user.pack(side="top", padx=10, pady=5)
 
         # Создаем табличный ноутбук для вкладок
         self.notebook = ttk.Notebook(self.root)
@@ -36,6 +47,10 @@ class MainWindow:
         self.refresh_clients_table()
         self.refresh_applications_table()
 
+    def close_event(self):
+        self.root.destroy()
+        exit()
+
     def create_cars_tab(self):
         self.tree_cars = ttk.Treeview(self.tab_cars, columns=("ID", "Brand", "Color", "Year", "Engine Volume", "Horsepower", "Transmission Type"), show="headings")
         self.tree_cars.heading("ID", text="id")
@@ -46,16 +61,16 @@ class MainWindow:
         self.tree_cars.heading("Horsepower", text="Лошадиные силы")
         self.tree_cars.heading("Transmission Type", text="Тип коробки")
 
-        self.tree_cars.pack()
+        self.tree_cars.pack(fill=BOTH, expand=True)
 
         btn_add_car = ttk.Button(self.tab_cars, text="Добавить", command=self.add_car_window)
-        btn_add_car.pack()
+        btn_add_car.pack(side="left")
 
         btn_delete_car = ttk.Button(self.tab_cars, text="Удалить", command=self.delete_car)
-        btn_delete_car.pack()
+        btn_delete_car.pack(side="right")
 
         btn_edit_car = ttk.Button(self.tab_cars, text="Редактировать", command=self.edit_car)
-        btn_edit_car.pack()
+        btn_edit_car.pack(side="left")
 
     def create_clients_tab(self):
         self.tree_clients = ttk.Treeview(self.tab_clients, columns=("ID", "Full Name", "Birth Year", "Gender", "Registration Date"), show="headings")
@@ -65,16 +80,16 @@ class MainWindow:
         self.tree_clients.heading("Gender", text="Пол")
         self.tree_clients.heading("Registration Date", text="Дата регистрации")
 
-        self.tree_clients.pack()
+        self.tree_clients.pack(fill=BOTH, expand=True)
 
         btn_add_client = ttk.Button(self.tab_clients, text="Добавить", command=self.add_client_window)
-        btn_add_client.pack()
+        btn_add_client.pack(side="left")
 
         btn_delete_client = ttk.Button(self.tab_clients, text="Удалить", command=self.delete_client)
-        btn_delete_client.pack()
+        btn_delete_client.pack(side="right")
 
         btn_edit_client = ttk.Button(self.tab_clients, text="Редактировать", command=self.edit_client)
-        btn_edit_client.pack()
+        btn_edit_client.pack(side="left")
 
     def create_applications_tab(self):
         self.tree_applications = ttk.Treeview(self.tab_applications, columns=("ID", "Car", "Client", "Viewing Date"), show="headings")
@@ -83,16 +98,16 @@ class MainWindow:
         self.tree_applications.heading("Client", text="Клиент")
         self.tree_applications.heading("Viewing Date", text="Дата просмотра")
 
-        self.tree_applications.pack()
+        self.tree_applications.pack(fill=BOTH, expand=True)
 
         btn_add_application = ttk.Button(self.tab_applications, text="Добавить", command=self.add_application_window)
-        btn_add_application.pack()
+        btn_add_application.pack(side="left")
 
         btn_delete_application = ttk.Button(self.tab_applications, text="Удалить", command=self.delete_application)
-        btn_delete_application.pack()
+        btn_delete_application.pack(side="right")
 
         btn_edit_application = ttk.Button(self.tab_applications, text="Редактировать", command=self.edit_application)
-        btn_edit_application.pack()
+        btn_edit_application.pack(side="left")
 
     def add_car_window(self):
         add_car_window = tk.Toplevel(self.root)
@@ -224,6 +239,8 @@ class MainWindow:
         self.refresh_cars_table()
 
     def refresh_cars_table(self):
+        self.cars = self.database.get_cars()
+
         # Очищаем таблицу перед обновлением
         for row in self.tree_cars.get_children():
             self.tree_cars.delete(row)
@@ -335,6 +352,8 @@ class MainWindow:
         self.refresh_clients_table()
 
     def refresh_clients_table(self):
+        self.clients = self.database.get_clients()
+
         # Очищаем таблицу перед обновлением
         for row in self.tree_clients.get_children():
             self.tree_clients.delete(row)
@@ -349,17 +368,18 @@ class MainWindow:
         add_application_window.title("Добавить заявку на просмотр")
 
         # Создаем и размещаем элементы интерфейса для добавления заявки на просмотр
-        label_car_id = ttk.Label(add_application_window, text="ID Автомобиля:")
-        label_car_id.pack()
+        label_car = ttk.Label(add_application_window, text="Автомобиль:")
+        label_car.pack()
 
-        car_id_entry = ttk.Entry(add_application_window)
-        car_id_entry.pack()
+        combo_car = ttk.Combobox(add_application_window, values=[car[1] for car in self.cars], state="readonly")
+        combo_car.pack()
 
-        label_client_id = ttk.Label(add_application_window, text="ID Клиента:")
-        label_client_id.pack()
+        label_client = ttk.Label(add_application_window, text="Клиент:")
+        label_client.pack()
 
-        client_id_entry = ttk.Entry(add_application_window)
-        client_id_entry.pack()
+        combo_client = ttk.Combobox(add_application_window, values=[client[1] for client in self.clients],
+                                    state="readonly")
+        combo_client.pack()
 
         label_viewing_date = ttk.Label(add_application_window, text="Дата просмотра:")
         label_viewing_date.pack()
@@ -367,8 +387,18 @@ class MainWindow:
         viewing_date_entry = ttk.Entry(add_application_window)
         viewing_date_entry.pack()
 
-        btn_add = ttk.Button(add_application_window, text="Добавить", command=lambda: self.add_application(add_application_window, car_id_entry.get(), client_id_entry.get(), viewing_date_entry.get()))
+        btn_add = ttk.Button(add_application_window, text="Добавить", command=lambda: self.add_application(add_application_window, self.get_car_id_by_name(combo_car.get()), self.get_client_id_by_name(combo_client.get()), viewing_date_entry.get()))
         btn_add.pack()
+
+    def get_car_id_by_name(self, car_name):
+        for car in self.cars:
+            if car[1] == car_name:
+                return car[0]
+
+    def get_client_id_by_name(self, client_name):
+        for client in self.clients:
+            if client[1] == client_name:
+                return client[0]
 
     def add_application(self, add_application_window, car_id, client_id, viewing_date):
         self.database.add_application(car_id, client_id, viewing_date)
@@ -400,19 +430,22 @@ class MainWindow:
         edit_application_window = tk.Toplevel(self.root)
         edit_application_window.title("Редактировать заявку")
 
-        label_car_id = ttk.Label(edit_application_window, text="ID Автомобиля:")
-        label_car_id.pack()
+        label_car = ttk.Label(edit_application_window, text="Автомобиль:")
+        label_car.pack()
 
-        car_id_entry = ttk.Entry(edit_application_window)
-        car_id_entry.insert(0, application_data[1])
-        car_id_entry.pack()
+        car_values = [car[1] for car in self.cars]
+        combo_car = ttk.Combobox(edit_application_window, values=car_values, state="readonly")
+        combo_car.pack()
+        combo_car.current(self.get_car_index_by_id(car_values, application_data[1]))
 
-        label_client_id = ttk.Label(edit_application_window, text="ID Клиента:")
-        label_client_id.pack()
+        label_client = ttk.Label(edit_application_window, text="Клиент:")
+        label_client.pack()
 
-        client_id_entry = ttk.Entry(edit_application_window)
-        client_id_entry.insert(1, application_data[2])
-        client_id_entry.pack()
+        client_values = [client[1] for client in self.clients]
+        combo_client = ttk.Combobox(edit_application_window, values=client_values,
+                                    state="readonly")
+        combo_client.pack()
+        combo_client.current(self.get_client_index_by_id(client_values, application_data[2]))
 
         label_viewing_date = ttk.Label(edit_application_window, text="Дата просмотра:")
         label_viewing_date.pack()
@@ -422,9 +455,18 @@ class MainWindow:
         viewing_date_entry.pack()
 
         btn_save = ttk.Button(edit_application_window, text="Сохранить",
-                              command=lambda: self.save_edited_application(edit_application_window, application_id, car_id_entry.get(),
-                                                                           client_id_entry.get(), viewing_date_entry.get()))
+                              command=lambda: self.save_edited_application(edit_application_window, application_id, self.get_car_id_by_name(combo_car.get()), self.get_client_id_by_name(combo_client.get()), viewing_date_entry.get()))
         btn_save.pack()
+
+    def get_car_index_by_id(self, car_values, car_id):
+        for car in car_values:
+            if car == self.database.get_car_name_by_id(car_id):
+                return car_values.index(car)
+
+    def get_client_index_by_id(self, client_values, client_id):
+        for client in client_values:
+            if client == self.database.get_client_name_by_id(client_id):
+                return client_values.index(client)
 
     def save_edited_application(self, edit_application_window, application_id, car_id, client_id, viewing_date):
         self.database.edit_application(application_id, car_id, client_id, viewing_date)
