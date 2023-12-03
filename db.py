@@ -35,7 +35,8 @@ class Database:
                 year INTEGER,
                 engine_volume REAL,
                 horsepower INTEGER,
-                transmission_type TEXT
+                transmission_type TEXT,
+                photo BLOB
             )
         ''')
 
@@ -44,9 +45,9 @@ class Database:
             CREATE TABLE IF NOT EXISTS clients (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 full_name TEXT,
-                birth_year INTEGER,
+                birth_year DATE,
                 gender TEXT,
-                registration_date TEXT
+                registration_date DATE
             )
         ''')
 
@@ -56,7 +57,7 @@ class Database:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 car_id INTEGER,
                 client_id INTEGER,
-                viewing_date TEXT,
+                viewing_date DATE,
                 FOREIGN KEY (car_id) REFERENCES cars (id),
                 FOREIGN KEY (client_id) REFERENCES clients (id)
             )
@@ -64,11 +65,11 @@ class Database:
 
         self.conn.commit()
 
-    def add_car(self, brand, color, year, engine_volume, horsepower, transmission_type):
+    def add_car(self, brand, color, year, engine_volume, horsepower, transmission_type, photo):
         self.cursor.execute('''
-            INSERT INTO cars (brand, color, year, engine_volume, horsepower, transmission_type)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (brand, color, year, engine_volume, horsepower, transmission_type))
+            INSERT INTO cars (brand, color, year, engine_volume, horsepower, transmission_type, photo)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (brand, color, year, engine_volume, horsepower, transmission_type, photo))
         self.conn.commit()
 
     def add_client(self, full_name, birth_year, gender, registration_date):
@@ -109,12 +110,12 @@ class Database:
         self.cursor.execute("DELETE FROM applications WHERE id=?", (application_id,))
         self.conn.commit()
 
-    def edit_car(self, car_id, brand, color, year, engine_volume, horsepower, transmission_type):
+    def edit_car(self, car_id, brand, color, year, engine_volume, horsepower, transmission_type, photo):
         self.cursor.execute('''
             UPDATE cars
-            SET brand=?, color=?, year=?, engine_volume=?, horsepower=?, transmission_type=?
+            SET brand=?, color=?, year=?, engine_volume=?, horsepower=?, transmission_type=?, photo=?
             WHERE id=?
-        ''', (brand, color, year, engine_volume, horsepower, transmission_type, car_id))
+        ''', (brand, color, year, engine_volume, horsepower, transmission_type, photo, car_id))
         self.conn.commit()
 
     def edit_client(self, client_id, full_name, birth_year, gender, registration_date):

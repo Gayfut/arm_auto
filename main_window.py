@@ -1,5 +1,10 @@
+import os
+from datetime import datetime
+
 import tkinter as tk
-from tkinter import ttk, messagebox, BOTH
+from tkinter import ttk, messagebox, BOTH, Label, filedialog
+from tkcalendar import DateEntry
+from PIL import ImageTk, Image
 
 
 class MainWindow:
@@ -13,6 +18,8 @@ class MainWindow:
 
         self.cars = []
         self.clients = []
+
+        self.car_image = ''
 
         # Определение стилей
         self.root.configure(bg='white')
@@ -153,8 +160,61 @@ class MainWindow:
         btn_add = ttk.Button(add_car_window, text="Добавить", command=lambda: self.add_car(add_car_window, brand_entry.get(), color_entry.get(), year_entry.get(), engine_volume_entry.get(), horsepower_entry.get(), transmission_type_entry.get()))
         btn_add.pack()
 
+        new_img_button = ttk.Button(add_car_window, text='Новое изображение',
+                                    command=lambda: self.new_car_photo(add_car_window))
+        new_img_button.pack()
+
+    def new_car_photo(self, car_window):
+        new_image_path = filedialog.askopenfilename(title='Изображение для авто')
+
+        if new_image_path != '':
+            self.car_image = self.convert_to_binary_data_car_img(new_image_path)
+
+            widgets = car_window.winfo_children()
+            for widget in widgets:
+                if hasattr(widget, 'myId'):
+                    if widget.myId == 'car_image':
+                        widget.destroy()
+
+            self.create_car_image(car_window)
+
+    def convert_to_binary_data_car_img(self, filename):
+        # Преобразование данных в двоичный формат
+        with open(filename, 'rb') as file:
+            blob_data = file.read()
+
+        return blob_data
+
+    def write_to_file_car_img(self):
+        file_path = 'temp_img.jpg'
+
+        # Преобразование двоичных данных в нужный формат
+        with open(file_path, 'wb') as file:
+            file.write(self.car_image)
+
+        return file_path
+
+    def delete_temp_img(self):
+        temp_file = 'temp_img.jpg'
+
+        if os.path.isfile(temp_file):
+            os.remove(temp_file)
+
+    def create_car_image(self, car_window):
+        car_image_path = self.write_to_file_car_img()
+
+        img = Image.open(car_image_path)
+        img = img.resize((250, 250))
+        img = ImageTk.PhotoImage(img)
+        img_panel = Label(car_window, image=img)
+        img_panel.image = img
+        img_panel.myId = 'car_image'
+        img_panel.pack()
+
+        self.delete_temp_img()
+
     def add_car(self, add_car_window, brand, color, year, engine_volume, horsepower, transmission_type):
-        self.database.add_car(brand, color, year, engine_volume, horsepower, transmission_type)
+        self.database.add_car(brand, color, year, engine_volume, horsepower, transmission_type, self.car_image)
         add_car_window.destroy()
         # Обновляем отображение таблицы с автомобилями
         self.refresh_cars_table()
@@ -232,9 +292,16 @@ class MainWindow:
                                                                    transmission_type_entry.get()))
         btn_save.pack()
 
+        new_img_button = ttk.Button(edit_car_window, text='Новое изображение',
+                                    command=lambda: self.new_car_photo(edit_car_window))
+        new_img_button.pack()
+
+        self.car_image = car_data[7]
+        self.create_car_image(edit_car_window)
+
     def save_edited_car(self, edit_car_window, car_id, brand, color, year, engine_volume, horsepower,
                         transmission_type):
-        self.database.edit_car(car_id, brand, color, year, engine_volume, horsepower, transmission_type)
+        self.database.edit_car(car_id, brand, color, year, engine_volume, horsepower, transmission_type, self.car_image)
         edit_car_window.destroy()
         self.refresh_cars_table()
 
@@ -264,7 +331,7 @@ class MainWindow:
         label_birth_year = ttk.Label(add_client_window, text="Год рождения:")
         label_birth_year.pack()
 
-        birth_year_entry = ttk.Entry(add_client_window)
+        birth_year_entry = DateEntry(add_client_window, selectmode='day')
         birth_year_entry.pack()
 
         label_gender = ttk.Label(add_client_window, text="Пол:")
@@ -276,10 +343,10 @@ class MainWindow:
         label_registration_date = ttk.Label(add_client_window, text="Дата регистрации:")
         label_registration_date.pack()
 
-        registration_date_entry = ttk.Entry(add_client_window)
+        registration_date_entry = DateEntry(add_client_window, selectmode='day')
         registration_date_entry.pack()
 
-        btn_add = ttk.Button(add_client_window, text="Добавить", command=lambda: self.add_client(add_client_window, full_name_entry.get(), birth_year_entry.get(), gender_entry.get(), registration_date_entry.get()))
+        btn_add = ttk.Button(add_client_window, text="Добавить", command=lambda: self.add_client(add_client_window, full_name_entry.get(), birth_year_entry.get_date(), gender_entry.get(), registration_date_entry.get_date()))
         btn_add.pack()
 
     def add_client(self, add_client_window, full_name, birth_year, gender, registration_date):
@@ -322,8 +389,8 @@ class MainWindow:
         label_birth_year = ttk.Label(edit_client_window, text="Год рождения:")
         label_birth_year.pack()
 
-        birth_year_entry = ttk.Entry(edit_client_window)
-        birth_year_entry.insert(1, client_data[2])
+        birth_year_entry = DateEntry(edit_client_window, selectmode='day')
+        birth_year_entry.set_date(datetime.strptime(client_data[2], '%Y-%m-%d'))
         birth_year_entry.pack()
 
         label_gender = ttk.Label(edit_client_window, text="Пол:")
@@ -336,14 +403,14 @@ class MainWindow:
         label_registration_date = ttk.Label(edit_client_window, text="Дата регистрации:")
         label_registration_date.pack()
 
-        registration_date_entry = ttk.Entry(edit_client_window)
-        registration_date_entry.insert(3, client_data[4])
+        registration_date_entry = DateEntry(edit_client_window, selectmode='day')
+        registration_date_entry.set_date(datetime.strptime(client_data[4], '%Y-%m-%d'))
         registration_date_entry.pack()
 
         btn_save = ttk.Button(edit_client_window, text="Сохранить",
                               command=lambda: self.save_edited_client(edit_client_window, client_id, full_name_entry.get(),
-                                                                      birth_year_entry.get(), gender_entry.get(),
-                                                                      registration_date_entry.get()))
+                                                                      birth_year_entry.get_date(), gender_entry.get(),
+                                                                      registration_date_entry.get_date()))
         btn_save.pack()
 
     def save_edited_client(self, edit_client_window, client_id, full_name, birth_year, gender, registration_date):
@@ -384,10 +451,10 @@ class MainWindow:
         label_viewing_date = ttk.Label(add_application_window, text="Дата просмотра:")
         label_viewing_date.pack()
 
-        viewing_date_entry = ttk.Entry(add_application_window)
+        viewing_date_entry = DateEntry(add_application_window, selectmode='day')
         viewing_date_entry.pack()
 
-        btn_add = ttk.Button(add_application_window, text="Добавить", command=lambda: self.add_application(add_application_window, self.get_car_id_by_name(combo_car.get()), self.get_client_id_by_name(combo_client.get()), viewing_date_entry.get()))
+        btn_add = ttk.Button(add_application_window, text="Добавить", command=lambda: self.add_application(add_application_window, self.get_car_id_by_name(combo_car.get()), self.get_client_id_by_name(combo_client.get()), viewing_date_entry.get_date()))
         btn_add.pack()
 
     def get_car_id_by_name(self, car_name):
@@ -450,12 +517,12 @@ class MainWindow:
         label_viewing_date = ttk.Label(edit_application_window, text="Дата просмотра:")
         label_viewing_date.pack()
 
-        viewing_date_entry = ttk.Entry(edit_application_window)
-        viewing_date_entry.insert(2, application_data[3])
+        viewing_date_entry = DateEntry(edit_application_window, selectmode='day')
+        viewing_date_entry.set_date(datetime.strptime(application_data[3], '%Y-%m-%d'))
         viewing_date_entry.pack()
 
         btn_save = ttk.Button(edit_application_window, text="Сохранить",
-                              command=lambda: self.save_edited_application(edit_application_window, application_id, self.get_car_id_by_name(combo_car.get()), self.get_client_id_by_name(combo_client.get()), viewing_date_entry.get()))
+                              command=lambda: self.save_edited_application(edit_application_window, application_id, self.get_car_id_by_name(combo_car.get()), self.get_client_id_by_name(combo_client.get()), viewing_date_entry.get_date()))
         btn_save.pack()
 
     def get_car_index_by_id(self, car_values, car_id):
