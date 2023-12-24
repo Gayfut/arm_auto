@@ -10,7 +10,10 @@ from PIL import ImageTk, Image
 class MainWindow:
     def __init__(self, root, database, current_user):
         self.root = root
+        self.app_icon = tk.PhotoImage(file='src/icon.png')
+        self.root.iconphoto(False, self.app_icon)
         self.root.title("Главная страница")
+
         self.root.protocol("WM_DELETE_WINDOW", self.close_event)
 
         self.database = database
@@ -99,11 +102,12 @@ class MainWindow:
         btn_edit_client.pack(side="left")
 
     def create_applications_tab(self):
-        self.tree_applications = ttk.Treeview(self.tab_applications, columns=("ID", "Car", "Client", "Viewing Date"), show="headings")
+        self.tree_applications = ttk.Treeview(self.tab_applications, columns=("ID", "Car", "Client", "Viewing Date", "Is shown"), show="headings")
         self.tree_applications.heading("ID", text="id")
         self.tree_applications.heading("Car", text="Автомобиль")
         self.tree_applications.heading("Client", text="Клиент")
         self.tree_applications.heading("Viewing Date", text="Дата просмотра")
+        self.tree_applications.heading("Is shown", text="Показана")
 
         self.tree_applications.pack(fill=BOTH, expand=True)
 
@@ -116,8 +120,13 @@ class MainWindow:
         btn_edit_application = ttk.Button(self.tab_applications, text="Редактировать", command=self.edit_application)
         btn_edit_application.pack(side="left")
 
+        btn_mark_as_shown = ttk.Button(self.tab_applications, text="Отметить как показанную",
+                                       command=self.mark_application_as_shown)
+        btn_mark_as_shown.pack(side="left")
+
     def add_car_window(self):
         add_car_window = tk.Toplevel(self.root)
+        add_car_window.iconphoto(False, self.app_icon)
         add_car_window.title("Добавить автомобиль")
 
         # Создаем и размещаем элементы интерфейса для добавления автомобиля
@@ -241,6 +250,7 @@ class MainWindow:
         car_data = self.database.get_car(car_id)
 
         edit_car_window = tk.Toplevel(self.root)
+        edit_car_window.iconphoto(False, self.app_icon)
         edit_car_window.title("Редактировать автомобиль")
 
         label_brand = ttk.Label(edit_car_window, text="Марка:")
@@ -319,6 +329,7 @@ class MainWindow:
 
     def add_client_window(self):
         add_client_window = tk.Toplevel(self.root)
+        add_client_window.iconphoto(False, self.app_icon)
         add_client_window.title("Добавить клиента")
 
         # Создаем и размещаем элементы интерфейса для добавления клиента
@@ -377,6 +388,7 @@ class MainWindow:
         client_data = self.database.get_client(client_id)
 
         edit_client_window = tk.Toplevel(self.root)
+        edit_client_window.iconphoto(False, self.app_icon)
         edit_client_window.title("Редактировать клиента")
 
         label_full_name = ttk.Label(edit_client_window, text="ФИО:")
@@ -432,6 +444,7 @@ class MainWindow:
 
     def add_application_window(self):
         add_application_window = tk.Toplevel(self.root)
+        add_application_window.iconphoto(False, self.app_icon)
         add_application_window.title("Добавить заявку на просмотр")
 
         # Создаем и размещаем элементы интерфейса для добавления заявки на просмотр
@@ -495,6 +508,7 @@ class MainWindow:
         application_data = self.database.get_application(application_id)
 
         edit_application_window = tk.Toplevel(self.root)
+        edit_application_window.iconphoto(False, self.app_icon)
         edit_application_window.title("Редактировать заявку")
 
         label_car = ttk.Label(edit_application_window, text="Автомобиль:")
@@ -549,3 +563,16 @@ class MainWindow:
         applications = self.database.get_applications()
         for application in applications:
             self.tree_applications.insert("", "end", values=application)
+
+    def mark_application_as_shown(self):
+        selected_item = self.tree_applications.selection()
+
+        if not selected_item:
+            messagebox.showwarning("Предупреждение", "Выберите заявку для отметки.")
+            return
+
+        application_id = self.tree_applications.item(selected_item, "values")[0]
+
+        self.database.mark_application_as_shown(application_id)
+
+        self.refresh_applications_table()

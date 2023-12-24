@@ -7,7 +7,10 @@ from main_window import MainWindow
 
 def main():
     db = Database()
+
     root = tk.Tk()
+    app_icon = tk.PhotoImage(file='src/icon.png')
+    root.iconphoto(False, app_icon)
 
     def on_successful_login(user):
         current_user = db.get_username_by_id(user)

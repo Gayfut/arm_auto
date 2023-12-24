@@ -58,6 +58,7 @@ class Database:
                 car_id INTEGER,
                 client_id INTEGER,
                 viewing_date DATE,
+                is_shown BOOLEAN NOT NULL DEFAULT FALSE,
                 FOREIGN KEY (car_id) REFERENCES cars (id),
                 FOREIGN KEY (client_id) REFERENCES clients (id)
             )
@@ -81,9 +82,9 @@ class Database:
 
     def add_application(self, car_id, client_id, viewing_date):
         self.cursor.execute('''
-            INSERT INTO applications (car_id, client_id, viewing_date)
-            VALUES (?, ?, ?)
-        ''', (car_id, client_id, viewing_date))
+            INSERT INTO applications (car_id, client_id, viewing_date, is_shown)
+            VALUES (?, ?, ?, ?)
+        ''', (car_id, client_id, viewing_date, False))
         self.conn.commit()
 
     def get_cars(self):
@@ -160,3 +161,11 @@ class Database:
         self.cursor.execute("SELECT full_name FROM clients WHERE id=?", (client_id,))
         result = self.cursor.fetchone()
         return result[0] if result else None
+
+    def mark_application_as_shown(self, application_id):
+        self.cursor.execute("""
+            UPDATE applications
+            SET is_shown = ?
+            WHERE id = ?
+        """, (True, application_id,))
+        self.conn.commit()
