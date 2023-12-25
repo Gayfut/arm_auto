@@ -13,7 +13,8 @@ class Database:
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT,
-                password TEXT
+                password TEXT,
+                is_admin BOOLEAN
             )
         ''')
         self.conn.commit()
@@ -96,7 +97,7 @@ class Database:
         return self.cursor.fetchall()
 
     def get_applications(self):
-        self.cursor.execute('SELECT * FROM applications')
+        self.cursor.execute('SELECT * FROM applications WHERE is_shown=?', (False,))
         return self.cursor.fetchall()
 
     def delete_car(self, car_id):
@@ -169,3 +170,35 @@ class Database:
             WHERE id = ?
         """, (True, application_id,))
         self.conn.commit()
+
+    def user_is_admin(self, user_id):
+        self.cursor.execute("SELECT is_admin FROM users WHERE id=?", (user_id,))
+        result = self.cursor.fetchone()
+        return result[0] if result else False
+
+    def add_user(self, username, password, is_admin):
+        self.cursor.execute('''
+            INSERT INTO users (username, password, is_admin)
+            VALUES (?, ?, ?)
+        ''', (username, password, is_admin))
+        self.conn.commit()
+
+    def delete_user(self, user_id):
+        self.cursor.execute("DELETE FROM users WHERE id=?", (user_id,))
+        self.conn.commit()
+
+    def get_user(self, user_id):
+        self.cursor.execute("SELECT * FROM users WHERE id=?", (user_id,))
+        return self.cursor.fetchone()
+
+    def edit_user(self, user_id, username, password, is_admin):
+        self.cursor.execute('''
+            UPDATE users
+            SET username=?, password=?, is_admin=?
+            WHERE id=?
+        ''', (username, password, is_admin, user_id))
+        self.conn.commit()
+
+    def get_users(self, current_user_id):
+        self.cursor.execute('SELECT * FROM users WHERE id<>?', (current_user_id,))
+        return self.cursor.fetchall()

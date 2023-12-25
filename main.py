@@ -13,9 +13,7 @@ def main():
     root.iconphoto(False, app_icon)
 
     def on_successful_login(user):
-        current_user = db.get_username_by_id(user)
-
-        main_window = MainWindow(tk.Toplevel(root), db, current_user)  # Создаем новое окно
+        main_window = MainWindow(tk.Toplevel(root), db, user)  # Создаем новое окно
         root.withdraw()  # Скрываем окно авторизации
 
     login_window = LoginWindow(root, db, on_successful_login)

@@ -8,7 +8,7 @@ from PIL import ImageTk, Image
 
 
 class MainWindow:
-    def __init__(self, root, database, current_user):
+    def __init__(self, root, database, user):
         self.root = root
         self.app_icon = tk.PhotoImage(file='src/icon.png')
         self.root.iconphoto(False, self.app_icon)
@@ -17,7 +17,7 @@ class MainWindow:
         self.root.protocol("WM_DELETE_WINDOW", self.close_event)
 
         self.database = database
-        self.current_user = current_user
+        self.current_user = user
 
         self.cars = []
         self.clients = []
@@ -28,7 +28,7 @@ class MainWindow:
         self.root.configure(bg='white')
 
         # Текущий пользователь
-        self.label_current_user = ttk.Label(self.root, text=f"Пользователь: {self.current_user}",
+        self.label_current_user = ttk.Label(self.root, text=f"Пользователь: {self.database.get_username_by_id(self.current_user)}",
                                             background='white', font=('Arial', 10))
         self.label_current_user.pack(side="top", padx=10, pady=5)
 
@@ -49,6 +49,14 @@ class MainWindow:
         self.tab_applications = ttk.Frame(self.notebook)
         self.notebook.add(self.tab_applications, text="Заявки на просмотр")
         self.create_applications_tab()
+
+        if self.database.user_is_admin(self.current_user):
+            # Вкладка "Пользователи"
+            self.tab_users = ttk.Frame(self.notebook)
+            self.notebook.add(self.tab_users, text="Пользователи")
+            self.create_users_tab()
+
+            self.refresh_users_table()
 
         self.notebook.pack(fill="both", expand=True)
 
@@ -102,12 +110,11 @@ class MainWindow:
         btn_edit_client.pack(side="left")
 
     def create_applications_tab(self):
-        self.tree_applications = ttk.Treeview(self.tab_applications, columns=("ID", "Car", "Client", "Viewing Date", "Is shown"), show="headings")
+        self.tree_applications = ttk.Treeview(self.tab_applications, columns=("ID", "Car", "Client", "Viewing Date"), show="headings")
         self.tree_applications.heading("ID", text="id")
         self.tree_applications.heading("Car", text="Автомобиль")
         self.tree_applications.heading("Client", text="Клиент")
         self.tree_applications.heading("Viewing Date", text="Дата просмотра")
-        self.tree_applications.heading("Is shown", text="Показана")
 
         self.tree_applications.pack(fill=BOTH, expand=True)
 
@@ -123,6 +130,22 @@ class MainWindow:
         btn_mark_as_shown = ttk.Button(self.tab_applications, text="Отметить как показанную",
                                        command=self.mark_application_as_shown)
         btn_mark_as_shown.pack(side="left")
+
+    def create_users_tab(self):
+        self.tree_users = ttk.Treeview(self.tab_users, columns=("ID", "Username"), show="headings")
+        self.tree_users.heading("ID", text="id")
+        self.tree_users.heading("Username", text="Пользователь")
+
+        self.tree_users.pack(fill=BOTH, expand=True)
+
+        btn_add_user = ttk.Button(self.tab_users, text="Добавить", command=self.add_user_window)
+        btn_add_user.pack(side="left")
+
+        btn_delete_user = ttk.Button(self.tab_users, text="Удалить", command=self.delete_user)
+        btn_delete_user.pack(side="right")
+
+        btn_edit_user = ttk.Button(self.tab_users, text="Редактировать", command=self.edit_user)
+        btn_edit_user.pack(side="left")
 
     def add_car_window(self):
         add_car_window = tk.Toplevel(self.root)
@@ -576,3 +599,100 @@ class MainWindow:
         self.database.mark_application_as_shown(application_id)
 
         self.refresh_applications_table()
+
+    def add_user_window(self):
+        add_user_window = tk.Toplevel(self.root)
+        add_user_window.iconphoto(False, self.app_icon)
+        add_user_window.title("Добавить пользователя")
+
+        # Создаем и размещаем элементы интерфейса для добавления пользователя
+        label_username = ttk.Label(add_user_window, text="Логин:")
+        label_username.pack()
+
+        username_entry = ttk.Entry(add_user_window)
+        username_entry.pack()
+
+        label_password = ttk.Label(add_user_window, text="Пароль:")
+        label_password.pack()
+
+        password_entry = ttk.Entry(add_user_window)
+        password_entry.pack()
+
+        is_admin_var = tk.BooleanVar()
+        is_admin = ttk.Checkbutton(add_user_window, text="Админ", variable=is_admin_var, onvalue=True, offvalue=False)
+        is_admin.pack()
+
+        btn_add = ttk.Button(add_user_window, text="Добавить", command=lambda: self.add_user(add_user_window, username_entry.get(), password_entry.get(), is_admin_var.get()))
+        btn_add.pack()
+
+    def add_user(self, add_user_window, username, password, is_admin):
+        self.database.add_user(username, password, is_admin)
+        add_user_window.destroy()
+        # Обновляем отображение таблицы с клиентами
+        self.refresh_users_table()
+
+    def delete_user(self):
+        selected_item = self.tree_users.selection()
+
+        if not selected_item:
+            messagebox.showwarning("Предупреждение", "Выберите пользователя для удаления.")
+            return
+
+        user_id = self.tree_users.item(selected_item, "values")[0]
+        self.database.delete_user(user_id)
+        self.refresh_users_table()
+
+    def edit_user(self):
+        selected_item = self.tree_users.selection()
+
+        if not selected_item:
+            messagebox.showwarning("Предупреждение", "Выберите клиента для редактирования.")
+            return
+
+        user_id = self.tree_users.item(selected_item, "values")[0]
+        user_data = self.database.get_user(user_id)
+
+        edit_user_window = tk.Toplevel(self.root)
+        edit_user_window.iconphoto(False, self.app_icon)
+        edit_user_window.title("Редактировать пользователя")
+
+        label_username = ttk.Label(edit_user_window, text="Логин:")
+        label_username.pack()
+
+        username_entry = ttk.Entry(edit_user_window)
+        username_entry.insert(0, user_data[1])
+        username_entry.pack()
+
+        label_password = ttk.Label(edit_user_window, text="Пароль:")
+        label_password.pack()
+
+        password_entry = ttk.Entry(edit_user_window)
+        password_entry.insert(0, user_data[2])
+        password_entry.pack()
+
+        is_admin_var = tk.BooleanVar()
+        is_admin_var.set(user_data[3])
+        is_admin = ttk.Checkbutton(edit_user_window, text="Админ", variable=is_admin_var, onvalue=True, offvalue=False)
+        is_admin.pack()
+
+        btn_save = ttk.Button(edit_user_window, text="Сохранить",
+                              command=lambda: self.save_edited_user(edit_user_window, user_id, username_entry.get(),
+                                                                      password_entry.get(), is_admin_var.get()))
+        btn_save.pack()
+
+    def save_edited_user(self, edit_user_window, user_id, username, password, is_admin):
+        self.database.edit_user(user_id, username, password, is_admin)
+        edit_user_window.destroy()
+        self.refresh_users_table()
+
+    def refresh_users_table(self):
+        self.clients = self.database.get_users(self.current_user)
+
+        # Очищаем таблицу перед обновлением
+        for row in self.tree_users.get_children():
+            self.tree_users.delete(row)
+
+        # Получаем данные из базы данных и добавляем их в таблицу
+        users = self.database.get_users(self.current_user)
+        for user in users:
+            self.tree_users.insert("", "end", values=user)
