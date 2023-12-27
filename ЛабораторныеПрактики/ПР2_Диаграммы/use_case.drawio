@@ -1,0 +1,34 @@
+<mxfile host="app.diagrams.net" modified="2023-09-28T10:34:39.661Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/117.0" etag="qA1fxeOCtg4MjMGp_00V" version="21.2.3" type="device">
+  <diagram name="Страница 1" id="cUjjUj1EhB7zKsQsvFTo">
+    <mxGraphModel dx="1114" dy="602" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="s-OvUWTf_hIzMa2GPE4v-45" value="" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="150" width="390" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="s-OvUWTf_hIzMa2GPE4v-51" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="s-OvUWTf_hIzMa2GPE4v-46" target="s-OvUWTf_hIzMa2GPE4v-50">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s-OvUWTf_hIzMa2GPE4v-46" value="Login" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="220" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="s-OvUWTf_hIzMa2GPE4v-49" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="s-OvUWTf_hIzMa2GPE4v-48" target="s-OvUWTf_hIzMa2GPE4v-46">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s-OvUWTf_hIzMa2GPE4v-48" value="User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="280" y="210" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s-OvUWTf_hIzMa2GPE4v-53" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="s-OvUWTf_hIzMa2GPE4v-50" target="s-OvUWTf_hIzMa2GPE4v-52">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s-OvUWTf_hIzMa2GPE4v-50" value="Verify" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="470" y="215" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s-OvUWTf_hIzMa2GPE4v-52" value="System accessed" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="610" y="215" width="80" height="50" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
