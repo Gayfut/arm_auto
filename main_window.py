@@ -8,6 +8,10 @@ from PIL import ImageTk, Image
 
 
 class MainWindow:
+
+    TRANSMISSION_TYPES = ['автомат', 'механика']
+    GENDERS = ['М', 'Ж']
+
     def __init__(self, root, database, user):
         self.root = root
         self.app_icon = tk.PhotoImage(file='src/icon.png')
@@ -186,7 +190,7 @@ class MainWindow:
         label_transmission_type = ttk.Label(add_car_window, text="Тип коробки:")
         label_transmission_type.pack()
 
-        transmission_type_entry = ttk.Entry(add_car_window)
+        transmission_type_entry = ttk.Combobox(add_car_window, values=self.TRANSMISSION_TYPES, state="readonly")
         transmission_type_entry.pack()
 
         btn_add = ttk.Button(add_car_window, text="Добавить", command=lambda: self.add_car(add_car_window, brand_entry.get(), color_entry.get(), year_entry.get(), engine_volume_entry.get(), horsepower_entry.get(), transmission_type_entry.get()))
@@ -314,8 +318,8 @@ class MainWindow:
         label_transmission_type = ttk.Label(edit_car_window, text="Тип коробки:")
         label_transmission_type.pack()
 
-        transmission_type_entry = ttk.Entry(edit_car_window)
-        transmission_type_entry.insert(5, car_data[6])
+        transmission_type_entry = ttk.Combobox(edit_car_window, values=self.TRANSMISSION_TYPES, state="readonly")
+        transmission_type_entry.current(self.TRANSMISSION_TYPES.index(car_data[6]))
         transmission_type_entry.pack()
 
         btn_save = ttk.Button(edit_car_window, text="Сохранить",
@@ -371,7 +375,7 @@ class MainWindow:
         label_gender = ttk.Label(add_client_window, text="Пол:")
         label_gender.pack()
 
-        gender_entry = ttk.Entry(add_client_window)
+        gender_entry = ttk.Combobox(add_client_window, values=self.GENDERS, state="readonly")
         gender_entry.pack()
 
         label_registration_date = ttk.Label(add_client_window, text="Дата регистрации:")
@@ -431,8 +435,8 @@ class MainWindow:
         label_gender = ttk.Label(edit_client_window, text="Пол:")
         label_gender.pack()
 
-        gender_entry = ttk.Entry(edit_client_window)
-        gender_entry.insert(2, client_data[3])
+        gender_entry = ttk.Combobox(edit_client_window, values=self.GENDERS, state="readonly")
+        gender_entry.current(self.GENDERS.index(client_data[3]))
         gender_entry.pack()
 
         label_registration_date = ttk.Label(edit_client_window, text="Дата регистрации:")
