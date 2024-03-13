@@ -11,6 +11,7 @@ class MainWindow:
 
     TRANSMISSION_TYPES = ['автомат', 'механика']
     GENDERS = ['М', 'Ж']
+    COLORS = ['белый', 'синий', 'красный', 'желтый', 'зеленый', 'черный', 'серый']
     ALL_APPLICATIONS = False
 
     def __init__(self, root, database, user):
@@ -77,7 +78,7 @@ class MainWindow:
     def create_cars_tab(self):
         self.tree_cars = ttk.Treeview(self.tab_cars, columns=("ID", "Brand", "Color", "Year", "Engine Volume", "Horsepower", "Transmission Type"), show="headings")
         self.tree_cars.heading("ID", text="id")
-        self.tree_cars.heading("Brand", text="Марка")
+        self.tree_cars.heading("Brand", text="Марка, модель")
         self.tree_cars.heading("Color", text="Цвет")
         self.tree_cars.heading("Year", text="Год")
         self.tree_cars.heading("Engine Volume", text="Объем двигателя")
@@ -162,7 +163,7 @@ class MainWindow:
         add_car_window.title("Добавить автомобиль")
 
         # Создаем и размещаем элементы интерфейса для добавления автомобиля
-        label_brand = ttk.Label(add_car_window, text="Марка:")
+        label_brand = ttk.Label(add_car_window, text="Марка, модель:")
         label_brand.pack()
 
         brand_entry = ttk.Entry(add_car_window)
@@ -171,7 +172,7 @@ class MainWindow:
         label_color = ttk.Label(add_car_window, text="Цвет:")
         label_color.pack()
 
-        color_entry = ttk.Entry(add_car_window)
+        color_entry = ttk.Combobox(add_car_window, values=self.COLORS, state="readonly")
         color_entry.pack()
 
         label_year = ttk.Label(add_car_window, text="Год:")
@@ -285,7 +286,7 @@ class MainWindow:
         edit_car_window.iconphoto(False, self.app_icon)
         edit_car_window.title("Редактировать автомобиль")
 
-        label_brand = ttk.Label(edit_car_window, text="Марка:")
+        label_brand = ttk.Label(edit_car_window, text="Марка, модель:")
         label_brand.pack()
 
         brand_entry = ttk.Entry(edit_car_window)
@@ -295,8 +296,8 @@ class MainWindow:
         label_color = ttk.Label(edit_car_window, text="Цвет:")
         label_color.pack()
 
-        color_entry = ttk.Entry(edit_car_window)
-        color_entry.insert(1, car_data[2])
+        color_entry = ttk.Combobox(edit_car_window, values=self.COLORS, state="readonly")
+        color_entry.current(self.COLORS.index(car_data[2]))
         color_entry.pack()
 
         label_year = ttk.Label(edit_car_window, text="Год:")
