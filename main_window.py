@@ -11,6 +11,7 @@ class MainWindow:
 
     TRANSMISSION_TYPES = ['автомат', 'механика']
     GENDERS = ['М', 'Ж']
+    ALL_APPLICATIONS = False
 
     def __init__(self, root, database, user):
         self.root = root
@@ -124,6 +125,10 @@ class MainWindow:
 
         btn_add_application = ttk.Button(self.tab_applications, text="Добавить", command=self.add_application_window)
         btn_add_application.pack(side="left")
+
+        self.btn_show_all = ttk.Button(self.tab_applications, text="Все",
+                                       command=lambda: self.refresh_applications_table(True))
+        self.btn_show_all.pack(side="right")
 
         btn_delete_application = ttk.Button(self.tab_applications, text="Удалить", command=self.delete_application)
         btn_delete_application.pack(side="right")
@@ -581,14 +586,30 @@ class MainWindow:
         edit_application_window.destroy()
         self.refresh_applications_table()
 
-    def refresh_applications_table(self):
+    def refresh_applications_table(self, all_command=False):
         # Очищаем таблицу перед обновлением
         for row in self.tree_applications.get_children():
             self.tree_applications.delete(row)
 
         # Получаем данные из базы данных и добавляем их в таблицу
-        applications = self.database.get_applications()
+        if all_command:
+            self.ALL_APPLICATIONS = not self.ALL_APPLICATIONS
+
+            if self.ALL_APPLICATIONS:
+                self.btn_show_all.config(text="Непоказанные")
+            else:
+                self.btn_show_all.config(text="Все")
+
+            applications = self.database.get_applications(self.ALL_APPLICATIONS)
+        else:
+            applications = self.database.get_applications()
+
         for application in applications:
+            application = list(application)
+            application[1] = self.database.get_car_name_by_id(application[1])
+            application[2] = self.database.get_client_name_by_id(application[2])
+            application = tuple(application)
+
             self.tree_applications.insert("", "end", values=application)
 
     def mark_application_as_shown(self):

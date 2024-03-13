@@ -96,8 +96,11 @@ class Database:
         self.cursor.execute('SELECT * FROM clients')
         return self.cursor.fetchall()
 
-    def get_applications(self):
-        self.cursor.execute('SELECT * FROM applications WHERE is_shown=?', (False,))
+    def get_applications(self, all_applications=False):
+        if all_applications:
+            self.cursor.execute('SELECT * FROM applications')
+        else:
+            self.cursor.execute('SELECT * FROM applications WHERE is_shown=?', (False,))
         return self.cursor.fetchall()
 
     def delete_car(self, car_id):
