@@ -6,8 +6,8 @@ from tkinter import ttk, messagebox, BOTH, Label, filedialog
 from tkcalendar import DateEntry
 from PIL import ImageTk, Image
 
-from tab_manager.tab_manager import TabManager
-from tab_manager.entity import Entity
+#from tab_manager.tab_manager import TabManager
+#from tab_manager.entity import Entity
 
 
 class MainWindow:
