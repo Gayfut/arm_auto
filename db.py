@@ -205,3 +205,25 @@ class Database:
     def get_users(self, current_user_id):
         self.cursor.execute('SELECT * FROM users WHERE id<>?', (current_user_id,))
         return self.cursor.fetchall()
+
+    def check_car(self, car_id):
+        self.cursor.execute("SELECT id FROM applications WHERE car_id=?", (car_id,))
+        result = self.cursor.fetchone()
+
+        if result:
+            car_used = True
+        else:
+            car_used = False
+
+        return car_used
+
+    def check_client(self, client_id):
+        self.cursor.execute("SELECT id FROM applications WHERE client_id=?", (client_id,))
+        result = self.cursor.fetchone()
+
+        if result:
+            client_used = True
+        else:
+            client_used = False
+
+        return client_used

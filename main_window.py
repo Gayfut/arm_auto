@@ -38,6 +38,11 @@ class MainWindow:
                                             background='white', font=('Arial', 10))
         self.label_current_user.pack(side="top", padx=10, pady=5)
 
+        # Кнопка обновления списков
+        self.btn_refresh_all = ttk.Button(self.root, text="Обновить",
+                                       command=lambda: self.refresh_all_tables())
+        self.btn_refresh_all.pack(side="top")
+
         # Создаем табличный ноутбук для вкладок
         self.notebook = ttk.Notebook(self.root)
 
@@ -74,6 +79,12 @@ class MainWindow:
     def close_event(self):
         self.root.destroy()
         exit()
+
+    def refresh_all_tables(self):
+        self.refresh_cars_table()
+        self.refresh_clients_table()
+        self.refresh_applications_table()
+        self.refresh_users_table()
 
     def create_cars_tab(self):
         self.tree_cars = ttk.Treeview(self.tab_cars, columns=("ID", "Brand", "Color", "Year", "Engine Volume", "Horsepower", "Transmission Type"), show="headings")
@@ -269,8 +280,12 @@ class MainWindow:
             return
 
         car_id = self.tree_cars.item(selected_item, "values")[0]
-        self.database.delete_car(car_id)
-        self.refresh_cars_table()
+
+        if self.database.check_car(car_id):
+            messagebox.showerror("Ошибка", "Данный автомобиль используется в заявке на просмотр!")
+        else:
+            self.database.delete_car(car_id)
+            self.refresh_cars_table()
 
     def edit_car(self):
         selected_item = self.tree_cars.selection()
@@ -407,8 +422,12 @@ class MainWindow:
             return
 
         client_id = self.tree_clients.item(selected_item, "values")[0]
-        self.database.delete_client(client_id)
-        self.refresh_clients_table()
+
+        if self.database.check_client(client_id):
+            messagebox.showerror("Ошибка", "Данный клиент используется в заявке на просмотр!")
+        else:
+            self.database.delete_client(client_id)
+            self.refresh_clients_table()
 
     def edit_client(self):
         selected_item = self.tree_clients.selection()
@@ -603,7 +622,7 @@ class MainWindow:
 
             applications = self.database.get_applications(self.ALL_APPLICATIONS)
         else:
-            applications = self.database.get_applications()
+            applications = self.database.get_applications(self.ALL_APPLICATIONS)
 
         for application in applications:
             application = list(application)
