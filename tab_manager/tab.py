@@ -1,23 +1,30 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, BOTH, messagebox
 
 
 class Tab:
-    def __init__(self, notebook, title, entity_class):
-        self.frame = ttk.Frame(notebook)
+    def __init__(self, notebook, entity):
+        self.entity = entity  # Класс сущности (Клиенты, Автомобили)
 
-        self.entity_class = entity_class  # Класс сущности (Клиенты, Автомобили)
-        self.entity = None  # Экземпляр сущности
+        self.frame = ttk.Frame(notebook)
+        notebook.add(self.frame, text=self.entity.title)
 
         # Создание первичного интерфейса
         self.create_firstly_ui()
+        self.update_data_grid()
 
         # Подключение функциональности
         self.connect_events()
 
     def create_firstly_ui(self):
         # Таблица для отображения данных
-        self.data_grid = ttk.Treeview(self.frame, columns=self.__get_fields_names(), show="headings")
+        field_names = self.__get_fields_names()
+
+        self.data_grid = ttk.Treeview(self.frame, columns=field_names, show="headings")
+        for field_name in field_names:
+            self.data_grid.heading(field_name, text=field_name)
+        self.data_grid.pack(fill=BOTH, expand=True)
+
         self.selected_row = None  # Выбранная строка в таблице
 
         # Основные кнопки
@@ -39,7 +46,7 @@ class Tab:
 
         for field_name, field_type in self.entity.fields.items():
             label = ttk.Label(self.frame, text=field_name)
-            entry = ttk.Entry(self.frame) if field_type == "string" else ...  # Определить виджеты для других типов
+            entry = ttk.Entry(self.frame) if field_type == "STRING" else ...  # Определить виджеты для других типов
             # ...
 
     def connect_events(self):
@@ -47,13 +54,20 @@ class Tab:
         # (Обработчики кнопок "Добавить", "Редактировать", "Удалить")
         # ...
 
-        pass
+        self.btn_delete_entity.config(command=self.__delete_handler)
 
     def update_data_grid(self):
         # Обновление данных в таблице
         # ...
 
-        pass
+        # Очищаем таблицу перед обновлением
+        for row in self.data_grid.get_children():
+            self.data_grid.delete(row)
+
+        # Получаем данные из базы данных и добавляем их в таблицу
+        elements = self.entity.get_all_elements()
+        for element in elements:
+            self.data_grid.insert("", "end", values=element)
 
     def get_selected_data(self):
         # Получение данных из выбранной строки
@@ -68,9 +82,21 @@ class Tab:
         pass
 
     def __get_fields_names(self):
-        fields_names = []
+        fields_names = ['id']
 
         for field_name, field_type in self.entity.fields.items():
             fields_names.append(field_name)
 
         return tuple(fields_names)
+
+    def __delete_handler(self):
+        selected_item = self.data_grid.selection()
+
+        if not selected_item:
+            messagebox.showwarning("Предупреждение", "Выберите элемент для удаления.")
+            return
+
+        element_id = self.data_grid.item(selected_item, "values")[0]
+
+        self.entity.delete(element_id)
+        self.update_data_grid()

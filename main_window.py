@@ -6,6 +6,9 @@ from tkinter import ttk, messagebox, BOTH, Label, filedialog
 from tkcalendar import DateEntry
 from PIL import ImageTk, Image
 
+from tab_manager.tab_manager import TabManager
+from tab_manager.entity import Entity
+
 
 class MainWindow:
 
@@ -75,6 +78,13 @@ class MainWindow:
         self.refresh_cars_table()
         self.refresh_clients_table()
         self.refresh_applications_table()
+
+
+        # Пример использования интерфейса
+        # self.test = Entity(self.database, 'test', {'name': 'STRING'})
+
+        #self.tab_manager = TabManager(self.notebook)
+        #self.tab_manager.add_tab(self.test)
 
     def close_event(self):
         self.root.destroy()

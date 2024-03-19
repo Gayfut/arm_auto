@@ -227,3 +227,46 @@ class Database:
             client_used = False
 
         return client_used
+
+    # Интерфейсы
+    def add_new_table(self, table_title, fields):
+        sql_text = ('CREATE TABLE IF NOT EXISTS {0} (id INTEGER PRIMARY KEY AUTOINCREMENT').format(table_title)
+
+        for name, shield_type in fields.items():
+            sql_text += (',{0} {1}').format(name, shield_type)
+
+        sql_text += ')'
+
+        self.cursor.execute(sql_text)
+
+        self.conn.commit()
+
+    def add_new_element(self, table_title, data):
+        sql_text = ('INSERT INTO {0} VALUES (').format(table_title)
+
+        for name, value in data.items():
+            sql_text += ('{0},').format(value)
+
+        sql_text += ')'
+
+        self.cursor.execute(sql_text)
+
+        self.conn.commit()
+
+    def get_element(self, table_title, element_id):
+        sql_text = ('SELECT * FROM {0} WHERE id=?').format(table_title)
+        self.cursor.execute(sql_text, (element_id,))
+
+        return self.cursor.fetchone()
+
+    def delete_element(self, table_title, element_id):
+        sql_text = ('DELETE FROM {0} WHERE id=?').format(table_title)
+        self.cursor.execute(sql_text, (element_id,))
+
+        self.conn.commit()
+
+    def get_elements(self, table_title):
+        sql_text = ('SELECT * FROM {0}').format(table_title)
+        self.cursor.execute(sql_text)
+
+        return self.cursor.fetchall()
