@@ -241,12 +241,16 @@ class Database:
 
         self.conn.commit()
 
-    def add_new_element(self, table_title, data):
-        sql_text = ('INSERT INTO {0} VALUES (').format(table_title)
+    def add_new_element(self, table_title, data, element_id=None):
+        if element_id is None:
+            sql_text = ('INSERT INTO {0} VALUES (NULL,').format(table_title)
+        else:
+            sql_text = ("INSERT INTO {0} VALUES ('{1}',").format(table_title, element_id)
 
-        for name, value in data.items():
-            sql_text += ('{0},').format(value)
+        for value in data:
+            sql_text += ("'{0}',").format(value)
 
+        sql_text = sql_text[:-1]
         sql_text += ')'
 
         self.cursor.execute(sql_text)
@@ -270,3 +274,13 @@ class Database:
         self.cursor.execute(sql_text)
 
         return self.cursor.fetchall()
+
+    def edit_element(self, table_title, element_id, data):
+        self.delete_element(table_title, element_id)
+        self.add_new_element(table_title, data, element_id)
+
+    def delete_table(self, table_title):
+        sql_text = ('DROP TABLE IF EXISTS {0}').format(table_title)
+        self.cursor.execute(sql_text)
+
+        self.conn.commit()

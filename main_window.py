@@ -6,8 +6,8 @@ from tkinter import ttk, messagebox, BOTH, Label, filedialog
 from tkcalendar import DateEntry
 from PIL import ImageTk, Image
 
-#from tab_manager.tab_manager import TabManager
-#from tab_manager.entity import Entity
+from tab_manager.tab_manager import TabManager
+from tab_manager.entity import Entity
 
 
 class MainWindow:
@@ -80,11 +80,20 @@ class MainWindow:
         self.refresh_applications_table()
 
 
-        # Пример использования интерфейса
-        # self.test = Entity(self.database, 'test', {'name': 'STRING'})
+        # Пример использования интерфейсов
+        # Создание сущностей
+        self.test1 = Entity(self.database, 'InterfaceEntity1', {'Name': 'STRING', 'Surname': 'STRING'})
+        self.test2 = Entity(self.database, 'InterfaceEntity2', {'Product': 'INTEGER', 'Sum': 'INTEGER'})
 
-        #self.tab_manager = TabManager(self.notebook)
-        #self.tab_manager.add_tab(self.test)
+        # Создание вкладок на основе сущностей
+        self.tab_manager = TabManager(self.notebook)
+        self.tab_manager.add_tab(self.test1)
+        self.tab_manager.add_tab(self.test2)
+
+        # Удаление вкладок
+        #self.tab_manager.remove_tab(self.test1.title)
+        # Удаление сущности из базы
+        #self.test1.delete_db()
 
     def close_event(self):
         self.root.destroy()

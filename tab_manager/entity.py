@@ -7,19 +7,19 @@ class Entity:
 
         self.database.add_new_table(self.title, self.fields)
 
-    def add(self):
+    def add(self, data):
         # Действия при добавлении новой сущности
         # (Получение данных из полей ввода, взаимодействие с БД)
         # ...
 
-        pass
+        self.database.add_new_element(self.title, data)
 
-    def edit(self):
+    def edit(self, element_id, data):
         # Действия при редактировании сущности
         # (Получение данных из полей ввода, взаимодействие с БД)
         # ...
 
-        pass
+        self.database.edit_element(self.title, element_id, data)
 
     def delete(self, element_id):
         # Действия при удалении сущности
@@ -32,3 +32,13 @@ class Entity:
         # Возвращает все элементы из базы
 
         return self.database.get_elements(self.title)
+
+    def get_element_data(self, element_id):
+        # Возвращает все данные об элементе из базы
+
+        return self.database.get_element(self.title, element_id)
+
+    def delete_db(self):
+        # Удаление всей таблицы сушности
+
+        self.database.delete_table(self.title)
